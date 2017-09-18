@@ -1,12 +1,9 @@
 package com.example.stunnningbake.stunningbake.ui;
 
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +47,8 @@ public class StepExplanationFragment extends Fragment{
     String videoUrl;
     int selectedIndex;
     int index;
+    long playbackPosition;
+    int currentWindow;
     boolean landscape = false;
 
     private SimpleExoPlayer mExoPlayer;
@@ -57,21 +56,32 @@ public class StepExplanationFragment extends Fragment{
     private TextView mStepDescription;
     private FrameLayout nextButton;
     private FrameLayout prevButton;
-    private static MediaSessionCompat mMediaSession;
-    private PlaybackStateCompat.Builder mStateBuilder;
     private ButtonOnClickListener buttonOnClickListener;
+    private OnSavedPlayback savedPlayback;
 
     public StepExplanationFragment() {
     }
 
+
     public interface ButtonOnClickListener{
         void buttonClicked(int index);
+    }
+    public interface OnSavedPlayback{
+        void getPlaybackState(long position, int index);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
+        try{
+            buttonOnClickListener = (ButtonOnClickListener) getContext();
+            savedPlayback = (OnSavedPlayback) getContext();
+
+        } catch (ClassCastException e){
+            throw new ClassCastException(e.toString() + " Must be implemented ButtonOnClickListener");
+        }
 
         if (savedInstanceState != null){
             mRecipe = savedInstanceState.getParcelable("Recipe");
@@ -93,11 +103,7 @@ public class StepExplanationFragment extends Fragment{
         if (rootView.findViewById(R.id.next_button)!= null && rootView.findViewById(R.id.prev_button)!= null &&
                 rootView.findViewById(R.id.tv_step_description)!= null){
 
-            try{
-                buttonOnClickListener = (ButtonOnClickListener) getContext();
-            } catch (ClassCastException e){
-                throw new ClassCastException(e.toString() + " Must be implemented ButtonOnClickListener");
-            }
+
 
             mStepDescription = rootView.findViewById(R.id.tv_step_description);
             mStepDescription.setText(mStep.getDescription().trim());
@@ -126,8 +132,7 @@ public class StepExplanationFragment extends Fragment{
         }
 
 
-        mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getResources(), R.drawable.play_button_image));
-
+//        mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getResources(), R.drawable.play_button_image));
         initializePlayer();
         return rootView;
     }
@@ -153,8 +158,14 @@ public class StepExplanationFragment extends Fragment{
             Uri videoUri = Uri.parse(videoUrl);
             MediaSource videoSource = new ExtractorMediaSource(videoUri, dataSourceFactory, extractorsFactory,null, null);
             mExoPlayer.prepare(videoSource);
-            mExoPlayer.setPlayWhenReady(false);
+            mExoPlayer.setPlayWhenReady(true);
+            mExoPlayer.seekTo(playbackPosition);
         }
+    }
+
+    public void setPlaybackState(long position, int index){
+        this.playbackPosition = position;
+        this.currentWindow = index;
     }
 
     public void setLandscapeMode(){
@@ -167,9 +178,16 @@ public class StepExplanationFragment extends Fragment{
     }
 
     private void releasePlayer(){
-        mExoPlayer.stop();
-        mExoPlayer.release();
-        mExoPlayer = null;
+        if (mExoPlayer!= null){
+            playbackPosition = mExoPlayer.getCurrentPosition();
+            currentWindow = mExoPlayer.getCurrentWindowIndex();
+            if (savedPlayback != null){
+                savedPlayback.getPlaybackState(playbackPosition,currentWindow);
+            }
+            mExoPlayer.stop();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
     }
 
     @Override
@@ -192,10 +210,15 @@ public class StepExplanationFragment extends Fragment{
     }
 
 
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        releasePlayer();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
         releasePlayer();
     }
 }

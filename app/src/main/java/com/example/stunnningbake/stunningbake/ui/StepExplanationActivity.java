@@ -12,13 +12,18 @@ import android.view.WindowManager;
 import com.example.stunnningbake.stunningbake.R;
 import com.example.stunnningbake.stunningbake.models.Recipe;
 
-public class StepExplanationActivity extends AppCompatActivity implements StepExplanationFragment.ButtonOnClickListener{
+public class StepExplanationActivity extends AppCompatActivity implements
+        StepExplanationFragment.ButtonOnClickListener, StepExplanationFragment.OnSavedPlayback {
 
     private final static String TAG = StepExplanationActivity.class.getSimpleName();
 
     Recipe recipe;
     int selectedIndex;
     int screenOrientation;
+    long playbackPosition;
+    int currentWindow;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +37,11 @@ public class StepExplanationActivity extends AppCompatActivity implements StepEx
                     WindowManager.LayoutParams.FLAG_FULLSCREEN); //Remove notification bar
         }
         setContentView(R.layout.activity_step_explanation);
+
+        if (savedInstanceState != null){
+            playbackPosition = savedInstanceState.getLong("playbackPosition");
+            currentWindow = savedInstanceState.getInt("playbackPosition");
+        }
 
         Intent intentFromParent = getIntent();
         if (intentFromParent != null){
@@ -48,6 +58,7 @@ public class StepExplanationActivity extends AppCompatActivity implements StepEx
             StepExplanationFragment stepExplanationFragment = new StepExplanationFragment();
             stepExplanationFragment.setmRecipe(recipe);
             stepExplanationFragment.setSelectedIndex(selectedIndex);
+            stepExplanationFragment.setPlaybackState(playbackPosition, currentWindow);
             if (screenOrientation == Configuration.ORIENTATION_LANDSCAPE){
                 stepExplanationFragment.setLandscapeMode();
                 Log.v(TAG, "LANDSCAPE MODE");
@@ -63,11 +74,6 @@ public class StepExplanationActivity extends AppCompatActivity implements StepEx
         } else {
             refreshFragment(selectedIndex);
         }
-
-
-
-
-
     }
 
     @Override
@@ -79,6 +85,7 @@ public class StepExplanationActivity extends AppCompatActivity implements StepEx
         StepExplanationFragment stepExplanationFragment = new StepExplanationFragment();
         stepExplanationFragment.setmRecipe(recipe);
         stepExplanationFragment.setSelectedIndex(index);
+        stepExplanationFragment.setPlaybackState(playbackPosition, currentWindow);
         if (screenOrientation == Configuration.ORIENTATION_LANDSCAPE){
             stepExplanationFragment.setLandscapeMode();
             Log.v(TAG, "LANDSCAPE MODE");
@@ -92,5 +99,16 @@ public class StepExplanationActivity extends AppCompatActivity implements StepEx
                 .commit();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong("playbackPosition", playbackPosition);
+        outState.putInt("currentWindow", currentWindow);
+    }
 
+    @Override
+    public void getPlaybackState(long position, int index) {
+        playbackPosition = position;
+        currentWindow = index;
+    }
 }

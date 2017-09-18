@@ -37,15 +37,6 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepAdapterVie
         mContext = context;
         mSteps = recipe.getSteps();
         mClickHandler = clickHandler;
-//        try {
-//            mClickHandler = (StepAdapterOnClickHandler) clickHandler;
-//            Log.v(TAG, "Click Handler Success");
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException(context.toString()
-//                    + "must implement StepAdapterOnClickHander");
-//        }
-
-
     }
 
 
