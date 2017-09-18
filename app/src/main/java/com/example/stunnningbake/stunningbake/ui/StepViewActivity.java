@@ -8,13 +8,20 @@ import android.util.Log;
 
 import com.example.stunnningbake.stunningbake.R;
 import com.example.stunnningbake.stunningbake.adapters.StepAdapter;
+import com.example.stunnningbake.stunningbake.models.Ingredient;
 import com.example.stunnningbake.stunningbake.models.Recipe;
+import com.example.stunnningbake.stunningbake.widget.UpdateIngredientService;
 
-public class StepViewActivity extends AppCompatActivity implements StepAdapter.StepAdapterOnClickHandler{
+import java.util.ArrayList;
+
+public class StepViewActivity extends AppCompatActivity implements StepAdapter.StepAdapterOnClickHandler,
+        StepExplanationFragment.OnSavedPlayback{
     private static final String TAG = StepViewActivity.class.getSimpleName();
     Recipe recipe;
     boolean mTwoPane;
     int mSelectedIndex = 0;
+    long playbackPosition;
+    int currentWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +61,8 @@ public class StepViewActivity extends AppCompatActivity implements StepAdapter.S
                 StepExplanationFragment stepExplanationFragment = new StepExplanationFragment();
                 stepExplanationFragment.setmRecipe(recipe);
                 stepExplanationFragment.setSelectedIndex(mSelectedIndex);
+                stepExplanationFragment.setPlaybackState(playbackPosition, currentWindow);
+                stepExplanationFragment.setTabMode(true);
 
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 fragmentManager.beginTransaction()
@@ -62,6 +71,10 @@ public class StepViewActivity extends AppCompatActivity implements StepAdapter.S
             }
 
         }
+
+        //update widget
+        UpdateIngredientService.startIngredientService(this,(ArrayList<Ingredient>) recipe.getIngredients(), recipe.getName());
+        Log.v(TAG, "Widget Updated : " + recipe.getName());
 
 
     }
@@ -80,6 +93,8 @@ public class StepViewActivity extends AppCompatActivity implements StepAdapter.S
                 StepExplanationFragment newStepExplanationFragment = new StepExplanationFragment();
                 newStepExplanationFragment.setmRecipe(recipe);
                 newStepExplanationFragment.setSelectedIndex(mSelectedIndex);
+                newStepExplanationFragment.setPlaybackState(playbackPosition, currentWindow);
+                newStepExplanationFragment.setTabMode(true);
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.step_explanation_container, newStepExplanationFragment)
                         .commit();
@@ -95,6 +110,12 @@ public class StepViewActivity extends AppCompatActivity implements StepAdapter.S
             intent.putExtra("Recipe", recipe);
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void getPlaybackState(long position, int index) {
+        playbackPosition = position;
+        currentWindow = index;
     }
 
 }

@@ -59,6 +59,7 @@ public class StepExplanationActivity extends AppCompatActivity implements
             stepExplanationFragment.setmRecipe(recipe);
             stepExplanationFragment.setSelectedIndex(selectedIndex);
             stepExplanationFragment.setPlaybackState(playbackPosition, currentWindow);
+            stepExplanationFragment.setTabMode(false);
             if (screenOrientation == Configuration.ORIENTATION_LANDSCAPE){
                 stepExplanationFragment.setLandscapeMode();
                 Log.v(TAG, "LANDSCAPE MODE");
@@ -86,6 +87,7 @@ public class StepExplanationActivity extends AppCompatActivity implements
         stepExplanationFragment.setmRecipe(recipe);
         stepExplanationFragment.setSelectedIndex(index);
         stepExplanationFragment.setPlaybackState(playbackPosition, currentWindow);
+        stepExplanationFragment.setTabMode(false);
         if (screenOrientation == Configuration.ORIENTATION_LANDSCAPE){
             stepExplanationFragment.setLandscapeMode();
             Log.v(TAG, "LANDSCAPE MODE");

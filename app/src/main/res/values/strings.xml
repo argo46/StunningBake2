@@ -7,4 +7,5 @@
     <string name="ingredients">Ingredients</string>
     <string name="appwidget_text">Last Previewed Ingredient</string>
     <string name="add_widget">Add widget</string>
+    <string name="initial_widget_text">Open an ingredient in Stunning Bake app to show recipe in widget.</string>
 </resources>

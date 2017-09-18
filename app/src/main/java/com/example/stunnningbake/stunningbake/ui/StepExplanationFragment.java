@@ -1,5 +1,8 @@
 package com.example.stunnningbake.stunningbake.ui;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -31,6 +34,8 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.List;
 
@@ -45,11 +50,13 @@ public class StepExplanationFragment extends Fragment{
     List<Step> mSteps;
     Step mStep;
     String videoUrl;
+    String thumbnailUrl;
     int selectedIndex;
     int index;
     long playbackPosition;
     int currentWindow;
     boolean landscape = false;
+    boolean tabMode = true;
 
     private SimpleExoPlayer mExoPlayer;
     private SimpleExoPlayerView mPlayerView;
@@ -63,6 +70,7 @@ public class StepExplanationFragment extends Fragment{
     }
 
 
+
     public interface ButtonOnClickListener{
         void buttonClicked(int index);
     }
@@ -70,18 +78,27 @@ public class StepExplanationFragment extends Fragment{
         void getPlaybackState(long position, int index);
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        try{
-            buttonOnClickListener = (ButtonOnClickListener) getContext();
-            savedPlayback = (OnSavedPlayback) getContext();
 
-        } catch (ClassCastException e){
-            throw new ClassCastException(e.toString() + " Must be implemented ButtonOnClickListener");
+        if (!tabMode){
+            try {
+                buttonOnClickListener = (ButtonOnClickListener) getContext();
+            } catch (ClassCastException e){
+                throw new ClassCastException(e.toString() + " Must be implemented ButtonOnClickListener");
+            }
+        } else {
+            buttonOnClickListener = null;
         }
+
+        try {
+            savedPlayback = (OnSavedPlayback) getContext();
+        } catch (ClassCastException e){
+            throw new ClassCastException(e.toString()+ " Must be implemented OnSavedPlayback");
+        }
+
 
         if (savedInstanceState != null){
             mRecipe = savedInstanceState.getParcelable("Recipe");
@@ -99,6 +116,7 @@ public class StepExplanationFragment extends Fragment{
 
         mSteps = mRecipe.getSteps();
         mStep = mSteps.get(index);
+
 
         if (rootView.findViewById(R.id.next_button)!= null && rootView.findViewById(R.id.prev_button)!= null &&
                 rootView.findViewById(R.id.tv_step_description)!= null){
@@ -129,6 +147,11 @@ public class StepExplanationFragment extends Fragment{
                 }
             });
 
+            if (tabMode){
+                nextButton.setVisibility(View.GONE);
+                prevButton.setVisibility(View.GONE);
+            }
+
         }
 
 
@@ -156,10 +179,39 @@ public class StepExplanationFragment extends Fragment{
 
             videoUrl = mStep.getVideoURL();
             Uri videoUri = Uri.parse(videoUrl);
-            MediaSource videoSource = new ExtractorMediaSource(videoUri, dataSourceFactory, extractorsFactory,null, null);
-            mExoPlayer.prepare(videoSource);
-            mExoPlayer.setPlayWhenReady(true);
-            mExoPlayer.seekTo(playbackPosition);
+            mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getResources(),R.drawable.cake_landscape));
+
+            thumbnailUrl = mStep.getThumbnailURL();
+            if(videoUrl.isEmpty()){
+                if (!thumbnailUrl.isEmpty()){
+                    Uri uri = Uri.parse(thumbnailUrl);
+                    Picasso.with(getContext())
+                            .load(uri)
+                            .into(new Target() {
+                                @Override
+                                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                                    mPlayerView.setDefaultArtwork(bitmap);
+                                }
+
+                                @Override
+                                public void onBitmapFailed(Drawable errorDrawable) {
+                                    Log.v(TAG, "Loading Thumbnail Failed");
+                                }
+
+                                @Override
+                                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                                }
+                            });
+                }
+            } else {
+                MediaSource videoSource = new ExtractorMediaSource(videoUri, dataSourceFactory, extractorsFactory,null, null);
+                mExoPlayer.prepare(videoSource);
+                mExoPlayer.setPlayWhenReady(true);
+                mExoPlayer.seekTo(playbackPosition);
+            }
+
+
         }
     }
 
@@ -170,6 +222,9 @@ public class StepExplanationFragment extends Fragment{
 
     public void setLandscapeMode(){
         landscape = true;
+    }
+    public void setTabMode(boolean tabMode){
+        this.tabMode = tabMode;
     }
 
     public void setPotraitMode(){

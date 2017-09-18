@@ -11,12 +11,7 @@ import android.view.ViewGroup;
 
 import com.example.stunnningbake.stunningbake.R;
 import com.example.stunnningbake.stunningbake.adapters.StepAdapter;
-import com.example.stunnningbake.stunningbake.models.Ingredient;
 import com.example.stunnningbake.stunningbake.models.Recipe;
-import com.example.stunnningbake.stunningbake.widget.UpdateIngredientService;
-
-import java.util.ArrayList;
-
 
 
 public class StepsFragment extends Fragment{
@@ -28,13 +23,6 @@ public class StepsFragment extends Fragment{
     private RecyclerView mRecyclerView;
     private StepAdapter mStepAdapter;
 
-
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
 
     public StepsFragment() {
         // Required empty public constructor
@@ -69,10 +57,6 @@ public class StepsFragment extends Fragment{
         mRecyclerView.setNestedScrollingEnabled(false);
         mStepAdapter = new StepAdapter(mRecipe, rootView.getContext(), mClickHandler);
         mRecyclerView.setAdapter(mStepAdapter);
-
-
-        //update widget
-        UpdateIngredientService.startIngredientService(getContext(),(ArrayList<Ingredient>) mRecipe.getIngredients(), mRecipe.getName());
 
         return rootView;
     }
