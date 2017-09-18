@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Stunning Bake</string>
+    <string name="servings">Servings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="appwidget_text">Last Previewed Ingredient</string>
+    <string name="add_widget">Add widget</string>
+</resources>
