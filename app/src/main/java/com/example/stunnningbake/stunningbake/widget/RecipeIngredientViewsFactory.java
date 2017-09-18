@@ -22,10 +22,8 @@ public class RecipeIngredientViewsFactory implements RemoteViewsService.RemoteVi
 
     List<Ingredient> remoteViewIngredients;
     Context mContext;
-//    private int appWidgetId;
     public RecipeIngredientViewsFactory(Context context, Intent intent) {
         this.mContext = context;
-//        appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
     }
 
     @Override
@@ -62,10 +60,6 @@ public class RecipeIngredientViewsFactory implements RemoteViewsService.RemoteVi
         Log.d("WIDGET",ingredientForwidget);
 
         Intent intent = new Intent();
-//        Bundle extras = new Bundle();
-
-//        extras.putString(RecipeIngredientWidgetProvider.EXTRA_WORD, items[position]);
-//        intent.putExtras(extras);
         list.setOnClickFillInIntent(R.id.text1,intent);
 
 
